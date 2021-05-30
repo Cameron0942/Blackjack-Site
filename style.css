@@ -21,6 +21,7 @@ h1 {
 .error {
     display: none;
     color: red;
+    text-align: center;
 }
 
 .success {
@@ -32,7 +33,7 @@ h1 {
 .tableContainer {
     display: none;
 }
-
+/*
 .deal {
     display: block;
     text-align: center;
@@ -42,6 +43,41 @@ h1 {
     padding-right: 100px;
     font-size: 35px;
     margin-left: 43%;
+}
+*/
+
+body .container{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.deal {
+        background:linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
+        background-color:#77b55a;
+        border-radius:42px;
+        border:2px solid #4b8f29;
+        cursor:pointer;
+        color:#ffffff;
+        font-family:Arial;
+        font-size:28px;
+        font-weight:bold;
+        padding:32px 76px;
+        text-decoration:none;
+        text-shadow:-2px 2px 3px #5b8a3c;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+}
+
+.deal:hover {
+        background:linear-gradient(to bottom, #72b352 5%, #2a421e 100%);
+        background-color:#72b352;
+}
+
+.deal:active {
+        position:relative;
+        top:1px;
 }
 
 .hand {

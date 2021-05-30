@@ -19,7 +19,7 @@ var dealerAcePulled = false;
 
 req.onload = function() {
     
-    if(req.response) {
+    if(req.readyState === 4 && req.status === 200) {
         let success = document.querySelector(".success");
         success.setAttribute("style", "display: block;");
         
@@ -225,7 +225,14 @@ function drawDealerCards() {
             document.querySelector("#back").remove();
             document.querySelector(".field").querySelector("#card2").style = "display: show;";
             document.querySelector("#dealerValue").innerText = "Dealer hand: Blackjack";
+
+            var text = document.createElement("p");
+            document.getElementById("winner").appendChild(text);
+            document.querySelector("#winner").innerText = "Dealer wins";
+            document.querySelector("#winner").style = "display: flex;";
         }, 1000);
+
+
 
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
         dealerBlackjack = true;
