@@ -14,6 +14,8 @@ var playerBlackjack = false;
 var dealerBlackjack = false;
 var playerNonAceCardsTotal = 0;
 var acePulled = false;
+var dealerNonAceCardsTotal = 0;
+var dealerAcePulled = false;
 
 req.onload = function() {
     
@@ -54,7 +56,6 @@ function drawPlayerCards() {
     document.querySelector("#playerHand").querySelector("#card1").src = card["image"];
     playerHandValue = card["value"];
 
-    //copy code from hit
     
     switch (playerHandValue) {
         case "JACK":
@@ -102,7 +103,7 @@ function drawPlayerCards() {
         case "ACE":
             acePulled = true;
             if(playerHandValue == 11) {
-            total += 1;
+                total += 1;
             }
             else {
                 total += 11;
@@ -112,7 +113,6 @@ function drawPlayerCards() {
             total += parseInt(card["value"]);
             playerNonAceCardsTotal += parseInt(card["value"]);
     }
-    console.log("non ace cards total: " + playerNonAceCardsTotal);
 
     document.querySelector("#playerValue").innerText = "Player hand: " + total;
 
@@ -165,18 +165,23 @@ function drawDealerCards() {
     switch (card["value"]) {
         case "JACK":
             dealerHandValue = 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "QUEEN":
             dealerHandValue = 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "KING":
             dealerHandValue = 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "ACE":
+            dealerAcePulled = true;
             dealerHandValue = 11;
             break;
         default:
             dealerHandValue = parseInt(card["value"]);
+            dealerNonAceCardsTotal += parseInt(card["value"]);
     }
 
     document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerHandValue;
@@ -186,16 +191,20 @@ function drawDealerCards() {
     switch (card2["value"]) {
         case "JACK":
             total += 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "QUEEN":
             total += 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "KING":
             total += 10;
+            dealerNonAceCardsTotal += 10;
             break;
         case "ACE":
+            dealerAcePulled = true;
             if(dealerHandValue == 11) {
-            total += 1;
+                total += 1;
             }
             else {
                 total += 11;
@@ -203,9 +212,11 @@ function drawDealerCards() {
             break;
         default:
             total += parseInt(card2["value"]);
+            dealerNonAceCardsTotal += parseInt(card2["value"]);
     }
     
     dealerTotal = total;
+    console.log("dealer non card ace total from initial deal: " + dealerNonAceCardsTotal);
 
     if (dealerTotal == 21){
         console.log("Dealer BlackJack");
@@ -326,8 +337,6 @@ function hit() {
 }
 
 function stay() {
-    //TODO
-    //think of method to handle hands with ACE in them
     playerCanHit = false;
     var card;
 
@@ -354,33 +363,65 @@ function stay() {
     while (dealerTotal < 17) {
 
         if (dealerTotal >= 17) {
-            return;
+            break;
         }
 
         fullDeck.shift();
         card = fullDeck[0];
         
+        console.log("dealer non ace cards total before switch statement: " + dealerNonAceCardsTotal);
+
         switch (card["value"]) {
             case "JACK":
                 dealerTotal += 10;
+                dealerNonAceCardsTotal += 10;
                 break;
             case "QUEEN":
                 dealerTotal += 10;
+                dealerNonAceCardsTotal += 10;
                 break;
             case "KING":
                 dealerTotal += 10;
+                dealerNonAceCardsTotal += 10;
                 break;
             case "ACE":
-                if(dealerTotal <= 10) {
-                    dealerTotal += 11;
-                }
-                else {
+                dealerAcePulled = true;
+                if (dealerNonAceCardsTotal > 10 && dealerTotal > 10) {
                     dealerTotal += 1;
+                    console.log("Value being added from ACE: 1");
+                }
+                if (dealerNonAceCardsTotal <= 10 && dealerTotal <= 10) {
+                    dealerTotal += 11;
+                    console.log("Value being added from ACE: 11");
                 }
                 break;
             default:
                     dealerTotal += parseInt(card["value"]);
+                    console.log("This is the value being added into dealerNonAceCardsTotal -> " + parseInt(card["value"]));
+                    dealerNonAceCardsTotal += parseInt(card["value"]);
         }
+            console.log("dealer non ace cards total after switch statement: " + dealerNonAceCardsTotal);
+
+            if (dealerNonAceCardsTotal > 10 && dealerAcePulled && dealerTotal > 21) {
+                dealerTotal -= 10;
+                console.log("successfully checked dealer hit");
+            }
+
+            console.log("dealer total after adjusting: " + dealerTotal);
+
+            if (dealerNonAceCardsTotal >= 21 && dealerAcePulled && dealerTotal > 21) {
+                dealerTotal += 10;
+                console.log("Dealer should have busted with dealerTotal of: " + dealerTotal);
+
+                document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal + " BUST";
+                var text = document.createElement("p");
+                document.getElementById("winner").appendChild(text);
+                document.querySelector("#winner").innerText = "Player wins";
+                document.querySelector("#winner").style = "display: flex;";
+
+                document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
+                return;                
+            }
 
             var img = document.createElement("img");
             img.src = card["image"];
@@ -388,7 +429,6 @@ function stay() {
 
             document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
         
-            console.log(dealerTotal);
 
             if (dealerTotal > 21) {
                 document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal + " BUST";
@@ -402,9 +442,11 @@ function stay() {
             }
 
             firstStay = false;
+            dealerAcePulled = false;
+            console.log("____ITERATE____");
         }
+        
 
-        console.log("Dealer total: " + dealerTotal + " \n" + "Player total: " + playerTotal);
     if (playerTotal > dealerTotal){
         console.log("player wins");
         var text = document.createElement("p");
@@ -481,6 +523,6 @@ window.onload = function() {
         sessionStorage.removeItem("reloading");
         setTimeout(() => {
             dealButton.click();
-        }, 300);
+        }, 1000);
     }
 }
