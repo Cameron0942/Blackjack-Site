@@ -101,9 +101,6 @@ body .container{
 }
 
 .userChoices button{
-    justify-content: center;
-    padding: 15px;
-
     background:linear-gradient(to bottom, #77b55a 5%, #72b352 100%);
     background-color:#77b55a;
     border-radius:21px;
@@ -113,12 +110,13 @@ body .container{
     font-family:Arial;
     font-size:28px;
     font-weight:bold;
-    padding:32px 76px;
+    padding: 1% 5%;
     text-decoration:none;
     text-shadow:-2px 2px 3px #5b8a3c;
     display: flex;
     justify-content: center;
     text-align: center;
+    margin: 10px;
 }
 
 .userChoices .doubleDown {
@@ -159,7 +157,6 @@ body .container{
     justify-content: center;
     padding: 0;
     margin: 0;
-    color: rgb(56, 238, 102);
     font-size: 42px;
     border-style: solid;
 }

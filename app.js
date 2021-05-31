@@ -133,6 +133,7 @@ function drawPlayerCards() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Player wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
 
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
         return;
@@ -230,6 +231,7 @@ function drawDealerCards() {
             document.getElementById("winner").appendChild(text);
             document.querySelector("#winner").innerText = "Dealer wins";
             document.querySelector("#winner").style = "display: flex;";
+            document.querySelector("#winner").style.color = "red";
         }, 1000);
 
 
@@ -285,7 +287,7 @@ function hit() {
                 if(playerNonAceCardsTotal > 10) {
                     playerTotal += 1;
                 }
-                if (playerNonAceCardsTotal < 10 && playerTotal < 10) {
+                if (playerNonAceCardsTotal <= 10 && playerTotal <= 10) {
                     playerTotal += 11;
                 }
                 break;
@@ -317,6 +319,7 @@ function hit() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Dealer wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "red";
 
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
 
@@ -338,6 +341,7 @@ function hit() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Dealer wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "red";
 
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
@@ -425,6 +429,7 @@ function stay() {
                 document.getElementById("winner").appendChild(text);
                 document.querySelector("#winner").innerText = "Player wins";
                 document.querySelector("#winner").style = "display: flex;";
+                document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
 
                 document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
                 return;                
@@ -443,6 +448,7 @@ function stay() {
                 document.getElementById("winner").appendChild(text);
                 document.querySelector("#winner").innerText = "Player wins";
                 document.querySelector("#winner").style = "display: flex;";
+                document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
 
                 document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
                 return;
@@ -460,6 +466,7 @@ function stay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Player wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
     if (dealerTotal == playerTotal) {
@@ -468,6 +475,7 @@ function stay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Push";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "rgb(196, 191, 191)";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
     if (dealerTotal > playerTotal){
@@ -476,6 +484,7 @@ function stay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Dealer wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "red";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
@@ -497,6 +506,7 @@ function checkStay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Player wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
     if (dealerTotal == playerTotal) {
@@ -504,6 +514,7 @@ function checkStay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Push";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "rgb(196, 191, 191)";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
     if (dealerTotal > playerTotal){
@@ -511,6 +522,7 @@ function checkStay() {
         document.getElementById("winner").appendChild(text);
         document.querySelector("#winner").innerText = "Dealer wins";
         document.querySelector("#winner").style = "display: flex;";
+        document.querySelector("#winner").style.color = "red";
         document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
     }
 
