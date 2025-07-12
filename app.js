@@ -1,547 +1,233 @@
-//no idea how to link javascript files together
-//import * as time from '/timer.js';
-const req = new XMLHttpRequest();
-req.open("GET", "https://deckofcardsapi.com/api/deck/new/draw/?count=52");
-var fullDeck;
-var firstDraw = true;
-var playerTotal = 0;
-var dealerTotal = 0;
-var playerFirstDraw = true;
-var dealerHiddenCard = 0;
-var playerCanHit = true;
-var firstStay = true;
-var playerBlackjack = false;
-var dealerBlackjack = false;
-var playerNonAceCardsTotal = 0;
-var acePulled = false;
-var dealerNonAceCardsTotal = 0;
-var dealerAcePulled = false;
+// Calculator App
+class Calculator {
+    constructor() {
+        this.currentOperand = '';
+        this.previousOperand = '';
+        this.operation = null;
+        this.shouldResetDisplay = false;
+        this.initializeKeyboardSupport();
+    }
 
-req.onload = function() {
-    
-    if(req.readyState === 4 && req.status === 200) {
-        let success = document.querySelector(".success");
-        success.setAttribute("style", "display: block;");
+    clear() {
+        this.currentOperand = '';
+        this.previousOperand = '';
+        this.operation = null;
+        this.shouldResetDisplay = false;
+    }
+
+    delete() {
+        if (this.shouldResetDisplay) {
+            this.shouldResetDisplay = false;
+            return;
+        }
+        this.currentOperand = this.currentOperand.toString().slice(0, -1);
+    }
+
+    appendNumber(number) {
+        if (this.shouldResetDisplay) {
+            this.currentOperand = '';
+            this.shouldResetDisplay = false;
+        }
         
-    }
-    else {
-        let error = document.querySelector(".error");
-        error.setAttribute("style", "display: block;");
-        success.setAttribute("style", "display: none;");
+        if (number === '.' && this.currentOperand.includes('.')) return;
+        
+        this.currentOperand = this.currentOperand.toString() + number.toString();
     }
 
-    let data = JSON.parse(req.response);
-
-    fullDeck = data["cards"];
-
-    document.querySelector(".userChoices").setAttribute("style", "display: none;");
-
-};
-req.send();
-
-function sleep(milliseconds) {
-    const date = Date.now();
-    let currentDate = null;
-    do {
-      currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
-  }
-
-function drawPlayerCards() {
-    var card = fullDeck[0];
-    var playerHandValue;
-    
-
-    fullDeck.shift();
-    document.querySelector("#playerHand").querySelector("#card1").src = card["image"];
-    playerHandValue = card["value"];
-
-    
-    switch (playerHandValue) {
-        case "JACK":
-            playerHandValue = 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "QUEEN":
-            playerHandValue = 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "KING":
-            playerHandValue = 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "ACE":
-            playerHandValue = 11;
-            acePulled = true;
-            break;
-        default:
-            playerHandValue = parseInt(card["value"]);
-            playerNonAceCardsTotal += parseInt(card["value"]);
+    chooseOperation(operation) {
+        if (this.currentOperand === '') return;
+        
+        if (this.previousOperand !== '') {
+            this.compute();
+        }
+        
+        this.operation = operation;
+        this.previousOperand = this.currentOperand;
+        this.currentOperand = '';
     }
 
-    
-
-    card = fullDeck[0];
-    fullDeck.shift();
-    document.querySelector("#playerHand").querySelector("#card2").src = card["image"];
-    var total = playerHandValue;
-    playerHandValue = card["value"];
-
-    switch (playerHandValue) {
-        case "JACK":
-            total += 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "QUEEN":
-            total += 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "KING":
-            total += 10;
-            playerNonAceCardsTotal += 10;
-            break;
-        case "ACE":
-            acePulled = true;
-            if(playerHandValue == 11) {
-                total += 1;
-            }
-            else {
-                total += 11;
-            }
-            break;
-        default:
-            total += parseInt(card["value"]);
-            playerNonAceCardsTotal += parseInt(card["value"]);
-    }
-
-    document.querySelector("#playerValue").innerText = "Player hand: " + total;
-
-    document.querySelector(".deal").setAttribute("style", "display: none;");
-
-    document.querySelector(".tableContainer").classList.remove("tableContainer");
-    
-    playerTotal = total;
-
-    if (playerTotal == 21) {
-        document.querySelector("#playerValue").innerText = "Player hand: BLACKJACK";
-        document.querySelector("#back").remove();
-        document.querySelector(".field").querySelector("#card2").style = "display: show;";
-        document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-        playerBlackjack = true;
-
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Player wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
-
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-        return;
-    }
-
-    document.querySelector(".success").style = "color: red;";
-
-    return;
-}
-
-function drawDealerCards() {
-    var card = fullDeck[0];
-    var dealerHandValue = 0;
-    fullDeck.shift();
-    document.querySelector("#dealerHand").querySelector("#card1").src = card["image"];
-    card2 = fullDeck[0];
-    dealerHiddenCard = card2["value"];
-    fullDeck.shift();
-    document.querySelector("#dealerHand").querySelector("#card2").src = card2["image"];
-
-    if(firstDraw) {
-        document.querySelector("#dealerHand").querySelector("#back").src = "images/back.png";
-        document.querySelector("#dealerHand").querySelector("#back").style = "height: 314px; width: 226px;";
-        document.querySelector("#dealerHand").querySelector("#card2").style = "height: 314px; width: 226px;";
-        document.querySelector("#dealerHand").querySelector("#card2").style = "display: none;";
-
-        document.querySelector(".userChoices").setAttribute("style", "display: flex;");
-    }
-
-    switch (card["value"]) {
-        case "JACK":
-            dealerHandValue = 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "QUEEN":
-            dealerHandValue = 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "KING":
-            dealerHandValue = 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "ACE":
-            dealerAcePulled = true;
-            dealerHandValue = 11;
-            break;
-        default:
-            dealerHandValue = parseInt(card["value"]);
-            dealerNonAceCardsTotal += parseInt(card["value"]);
-    }
-
-    document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerHandValue;
-
-    var total = dealerHandValue;
-
-    switch (card2["value"]) {
-        case "JACK":
-            total += 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "QUEEN":
-            total += 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "KING":
-            total += 10;
-            dealerNonAceCardsTotal += 10;
-            break;
-        case "ACE":
-            dealerAcePulled = true;
-            if(dealerHandValue == 11) {
-                total += 1;
-            }
-            else {
-                total += 11;
-            }
-            break;
-        default:
-            total += parseInt(card2["value"]);
-            dealerNonAceCardsTotal += parseInt(card2["value"]);
-    }
-    
-    dealerTotal = total;
-    console.log("dealer non card ace total from initial deal: " + dealerNonAceCardsTotal);
-
-    if (dealerTotal == 21){
-        console.log("Dealer BlackJack");
-
-        setTimeout(()=> {
-            document.querySelector("#back").remove();
-            document.querySelector(".field").querySelector("#card2").style = "display: show;";
-            document.querySelector("#dealerValue").innerText = "Dealer hand: Blackjack";
-
-            var text = document.createElement("p");
-            document.getElementById("winner").appendChild(text);
-            document.querySelector("#winner").innerText = "Dealer wins";
-            document.querySelector("#winner").style = "display: flex;";
-            document.querySelector("#winner").style.color = "red";
-        }, 1000);
-
-
-
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-        dealerBlackjack = true;
-        return;
-    }
-
-    return;
-}
-
-
-function hit() {
-    if (!playerCanHit) {
-        return;
-    }
-
-    if (playerBlackjack || dealerBlackjack) {
-        return;
-    }
-
-    if (playerTotal == 21) {
-        return;
-    }
-
-    document.querySelector(".doubleDown").style.display = "none";
-
-    var cardPulled;
-
-    if (playerTotal <= 21) {
-        cardPulled = fullDeck[0];
-        fullDeck.shift();
-        var img = document.createElement("img");
-        img.src = cardPulled["image"];
-        document.getElementById("playerHand").appendChild(img);
-
-        switch (cardPulled["value"]) {
-            case "JACK":
-                playerTotal += 10;
-                playerNonAceCardsTotal += 10;
+    compute() {
+        let computation;
+        const prev = parseFloat(this.previousOperand);
+        const current = parseFloat(this.currentOperand);
+        
+        if (isNaN(prev) || isNaN(current)) return;
+        
+        switch (this.operation) {
+            case '+':
+                computation = prev + current;
                 break;
-            case "QUEEN":
-                playerTotal += 10;
-                playerNonAceCardsTotal += 10;
+            case '-':
+                computation = prev - current;
                 break;
-            case "KING":
-                playerTotal += 10;
-                playerNonAceCardsTotal += 10;
+            case '*':
+                computation = prev * current;
                 break;
-            case "ACE":
-                acePulled = true;
-                if(playerNonAceCardsTotal > 10) {
-                    playerTotal += 1;
+            case '/':
+                if (current === 0) {
+                    alert('Cannot divide by zero!');
+                    return;
                 }
-                if (playerNonAceCardsTotal <= 10 && playerTotal <= 10) {
-                    playerTotal += 11;
-                }
+                computation = prev / current;
                 break;
             default:
-                playerTotal += parseInt(cardPulled["value"]);
-                playerNonAceCardsTotal += parseInt(cardPulled["value"]);
-
-        }
-        console.log("non ace card total: " + playerNonAceCardsTotal);
-
-        playerFirstDraw = false;
-    }
-
-    if (playerNonAceCardsTotal > 10 && acePulled && playerTotal > 21) {
-        playerTotal -= 10;
-        console.log("successfully checked hit");
-    }
-
-    if(playerNonAceCardsTotal >= 21 && acePulled){
-        playerTotal += 10;
-        console.log("Player should have busted with playerTotal of: " + playerTotal);
-
-        document.querySelector("#playerValue").innerText = "Player hand: " + playerTotal + " BUST";
-        document.querySelector("#back").remove();
-        document.querySelector(".field").querySelector("#card2").style = "display: show;";
-        document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Dealer wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "red";
-
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-
-        return;
-    }
-
-    console.log("Player total after checking: " + playerTotal);
-
-
-    document.querySelector("#playerValue").innerText = "Player hand: " + playerTotal;
-
-    if(playerTotal > 21) {
-        document.querySelector("#playerValue").innerText = "Player hand: " + playerTotal + " BUST";
-        document.querySelector("#back").remove();
-        document.querySelector(".field").querySelector("#card2").style = "display: show;";
-        document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Dealer wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "red";
-
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-}
-
-function stay() {
-    playerCanHit = false;
-    var card;
-
-    if (playerTotal > 21) {
-        return;
-    }
-    
-    if (dealerBlackjack) {
-        return;
-    }
-
-    document.querySelector("#back").remove();
-    document.querySelector(".field").querySelector("#card2").style = "display: show;";
-    document.querySelector(".doubleDown").style.display = "none";
-
-    if (dealerTotal >= 17) {
-        document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-        return;
-    }
-
-    document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-
-
-    while (dealerTotal < 17) {
-
-        if (dealerTotal >= 17) {
-            break;
-        }
-
-        fullDeck.shift();
-        card = fullDeck[0];
-        
-        console.log("dealer non ace cards total before switch statement: " + dealerNonAceCardsTotal);
-
-        switch (card["value"]) {
-            case "JACK":
-                dealerTotal += 10;
-                dealerNonAceCardsTotal += 10;
-                break;
-            case "QUEEN":
-                dealerTotal += 10;
-                dealerNonAceCardsTotal += 10;
-                break;
-            case "KING":
-                dealerTotal += 10;
-                dealerNonAceCardsTotal += 10;
-                break;
-            case "ACE":
-                dealerAcePulled = true;
-                if (dealerNonAceCardsTotal > 10 && dealerTotal > 10) {
-                    dealerTotal += 1;
-                    console.log("Value being added from ACE: 1");
-                }
-                if (dealerNonAceCardsTotal <= 10 && dealerTotal <= 10) {
-                    dealerTotal += 11;
-                    console.log("Value being added from ACE: 11");
-                }
-                break;
-            default:
-                    dealerTotal += parseInt(card["value"]);
-                    console.log("This is the value being added into dealerNonAceCardsTotal -> " + parseInt(card["value"]));
-                    dealerNonAceCardsTotal += parseInt(card["value"]);
-        }
-            console.log("dealer non ace cards total after switch statement: " + dealerNonAceCardsTotal);
-
-            if (dealerNonAceCardsTotal > 10 && dealerAcePulled && dealerTotal > 21) {
-                dealerTotal -= 10;
-                console.log("successfully checked dealer hit");
-            }
-
-            console.log("dealer total after adjusting: " + dealerTotal);
-
-            if (dealerNonAceCardsTotal >= 21 && dealerAcePulled && dealerTotal > 21) {
-                dealerTotal += 10;
-                console.log("Dealer should have busted with dealerTotal of: " + dealerTotal);
-
-                document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal + " BUST";
-                var text = document.createElement("p");
-                document.getElementById("winner").appendChild(text);
-                document.querySelector("#winner").innerText = "Player wins";
-                document.querySelector("#winner").style = "display: flex;";
-                document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
-
-                document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-                return;                
-            }
-
-            var img = document.createElement("img");
-            img.src = card["image"];
-            document.getElementById("dealerHand").appendChild(img);
-
-            document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal;
-        
-
-            if (dealerTotal > 21) {
-                document.querySelector("#dealerValue").innerText = "Dealer hand: " + dealerTotal + " BUST";
-                var text = document.createElement("p");
-                document.getElementById("winner").appendChild(text);
-                document.querySelector("#winner").innerText = "Player wins";
-                document.querySelector("#winner").style = "display: flex;";
-                document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
-
-                document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
                 return;
-            }
-
-            firstStay = false;
-            dealerAcePulled = false;
-            console.log("____ITERATE____");
         }
         
-
-    if (playerTotal > dealerTotal){
-        console.log("player wins");
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Player wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-    if (dealerTotal == playerTotal) {
-        console.log("Push");
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Push";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "rgb(196, 191, 191)";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-    if (dealerTotal > playerTotal){
-        console.log("Dealer wins");
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Dealer wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "red";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
+        this.currentOperand = computation;
+        this.operation = null;
+        this.previousOperand = '';
+        this.shouldResetDisplay = true;
     }
 
-    document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
+    formatNumber(number) {
+        const stringNumber = number.toString();
+        const integerDigits = parseFloat(stringNumber.split('.')[0]);
+        const decimalDigits = stringNumber.split('.')[1];
+        
+        let integerDisplay;
+        if (isNaN(integerDigits)) {
+            integerDisplay = '';
+        } else {
+            integerDisplay = integerDigits.toLocaleString('en', {
+                maximumFractionDigits: 0
+            });
+        }
+        
+        if (decimalDigits != null) {
+            return `${integerDisplay}.${decimalDigits}`;
+        } else {
+            return integerDisplay;
+        }
+    }
+
+    updateDisplay() {
+        const currentElement = document.getElementById('current');
+        const historyElement = document.getElementById('history');
+        
+        if (this.currentOperand === '') {
+            currentElement.textContent = '0';
+        } else {
+            currentElement.textContent = this.formatNumber(this.currentOperand);
+        }
+        
+        if (this.operation != null) {
+            const operationSymbol = this.operation === '*' ? '×' : this.operation;
+            historyElement.textContent = `${this.formatNumber(this.previousOperand)} ${operationSymbol}`;
+        } else {
+            historyElement.textContent = '';
+        }
+    }
+
+    initializeKeyboardSupport() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') {
+                this.appendNumber(event.key);
+            } else if (event.key === '.') {
+                this.appendNumber('.');
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                this.chooseOperation(event.key);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                this.compute();
+            } else if (event.key === 'Escape') {
+                this.clear();
+            } else if (event.key === 'Backspace') {
+                this.delete();
+            }
+            this.updateDisplay();
+        });
+    }
+}
+
+// Initialize calculator
+const calculator = new Calculator();
+
+// Button click handlers
+function appendNumber(number) {
+    calculator.appendNumber(number);
+    calculator.updateDisplay();
+}
+
+function setOperation(operation) {
+    calculator.chooseOperation(operation);
+    calculator.updateDisplay();
+}
+
+function calculate() {
+    calculator.compute();
+    calculator.updateDisplay();
+}
+
+function clearAll() {
+    calculator.clear();
+    calculator.updateDisplay();
+}
+
+function clearEntry() {
+    calculator.currentOperand = '';
+    calculator.updateDisplay();
+}
+
+function deleteLast() {
+    calculator.delete();
+    calculator.updateDisplay();
+}
+
+// Initialize display on page load
+document.addEventListener('DOMContentLoaded', () => {
+    calculator.updateDisplay();
+});
+
+// Add visual feedback for button presses
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.btn');
     
+    buttons.forEach(button => {
+        button.addEventListener('mousedown', () => {
+            button.style.transform = 'scale(0.95)';
+        });
+        
+        button.addEventListener('mouseup', () => {
+            button.style.transform = 'scale(1)';
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            button.style.transform = 'scale(1)';
+        });
+    });
+});
 
-    return;
-}
-
-function checkStay() {
-
-    if (!firstStay) {
-        return;
+// Add keyboard visual feedback
+document.addEventListener('keydown', (event) => {
+    let buttonToHighlight = null;
+    
+    if (event.key >= '0' && event.key <= '9') {
+        buttonToHighlight = document.querySelector(`[onclick="appendNumber('${event.key}')"]`);
+    } else if (event.key === '.') {
+        buttonToHighlight = document.querySelector(`[onclick="appendNumber('.')"]`);
+    } else if (event.key === '+') {
+        buttonToHighlight = document.querySelector(`[onclick="setOperation('+')"]`);
+    } else if (event.key === '-') {
+        buttonToHighlight = document.querySelector(`[onclick="setOperation('-')"]`);
+    } else if (event.key === '*') {
+        buttonToHighlight = document.querySelector(`[onclick="setOperation('*')"]`);
+    } else if (event.key === '/') {
+        buttonToHighlight = document.querySelector(`[onclick="setOperation('/')"]`);
+    } else if (event.key === 'Enter' || event.key === '=') {
+        buttonToHighlight = document.querySelector(`[onclick="calculate()"]`);
+    } else if (event.key === 'Escape') {
+        buttonToHighlight = document.querySelector(`[onclick="clearAll()"]`);
+    } else if (event.key === 'Backspace') {
+        buttonToHighlight = document.querySelector(`[onclick="deleteLast()"]`);
     }
-
-    if (playerTotal > dealerTotal){
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Player wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "rgb(56, 238, 102)";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-    if (dealerTotal == playerTotal) {
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Push";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "rgb(196, 191, 191)";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-    if (dealerTotal > playerTotal){
-        var text = document.createElement("p");
-        document.getElementById("winner").appendChild(text);
-        document.querySelector("#winner").innerText = "Dealer wins";
-        document.querySelector("#winner").style = "display: flex;";
-        document.querySelector("#winner").style.color = "red";
-        document.querySelector(".userChoices").querySelector("#newDeal").style.display = "flex";
-    }
-
-    return;
-}
-
-function newHand() {
-    sessionStorage.setItem("reloading", "true");
-    document.location.reload();
-}
-
-window.onload = function() {
-    var reloading = sessionStorage.getItem("reloading");
-    if (reloading) {
-        const dealButton = document.querySelector(".container").querySelector(".deal");
-        dealButton.style.display = "none";
-        sessionStorage.removeItem("reloading");
+    
+    if (buttonToHighlight) {
+        buttonToHighlight.style.transform = 'scale(0.95)';
+        buttonToHighlight.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.4)';
+        
         setTimeout(() => {
-            dealButton.click();
-        }, 1000);
+            buttonToHighlight.style.transform = 'scale(1)';
+            buttonToHighlight.style.boxShadow = '';
+        }, 150);
     }
-}
+});
