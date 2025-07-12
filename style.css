@@ -12,7 +12,7 @@ body {
 }
 
 h1 {
-    width:500px;
+    width: 100dvw;
     margin: 0 auto;
     text-align: center;
     color:rgb(153, 224, 153)
@@ -50,6 +50,7 @@ body .container{
     display: flex;
     justify-content: center;
     text-align: center;
+    width: 100dvw;
 }
 
 .deal {
@@ -166,6 +167,6 @@ body .container{
 }
 
 .winnerContainer {
-    width: 650px;
+    width: 100dvw;
     margin: auto;
 }
